@@ -10,10 +10,12 @@
 Wrapped in a beautiful **Material Design 3 (Material You)** interface, it allows users to deeply personalize their experience with dynamic color palettes, custom Google Fonts, and adjustable button shapes.
 
 <p align="center">
-  <!-- Add your screenshots here -->
-  <img src="link_to_screenshot_1.jpg" width="200" alt="Standard Calc">
-  <img src="link_to_screenshot_2.jpg" width="200" alt="AI Assistant">
-  <img src="link_to_screenshot_3.jpg" width="200" alt="UI Settings">
+  <img src="https://i.ibb.co/sJk7GXLg/android-1-1.png" width="200" alt="Standard Calc">
+  <img src="https://i.ibb.co/svFRXZ1z/android-1-2.png" width="200" alt="Math Toolkit">
+  <img src="https://i.ibb.co/ccfLxQ4H/android-1-3.png" width="200" alt="AI Assistant">
+  <img src="https://i.ibb.co/R4hTzvKW/android-1-4.png" width="200" alt="UI Settings">
+  <img src="https://i.ibb.co/XfbmcfcW/android-1-5.png" width="200" alt="Converters">
+  <img src="https://i.ibb.co/pr1nZQVd/android-1-6.png" width="200" alt="Dictionary">
 </p>
 
 ## ✨ Key Features
@@ -61,17 +63,6 @@ Originally built as an ultra-optimized single-file web application and converted
 4. Tap the APK to install (you may need to allow "Install from Unknown Sources" in your Android settings).
 5. Open **Calc OS** and enjoy!
 
-## 💻 Development & Building
-
-If you want to modify the source code or build the APK yourself:
-
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/yourusername/calc-os.html
-   ```
-2. The core logic is housed entirely in the `index.html` file.
-3. Make your edits.
-4. To build for Android, use [Capacitor](https://capacitorjs.com/), [Cordova](https://cordova.apache.org/), or simply wrap the HTML file in an Android Studio `WebView` project.
 
 ## 🤝 Contributing
 Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](../../issues). 
