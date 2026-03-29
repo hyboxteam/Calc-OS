@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Material 3 Advanced Calculator OS</title>
+
+    <!-- Tailwind CSS with custom MD3 config -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: 'var(--md-primary)', onPrimary: 'var(--md-on-primary)',
+                        primaryContainer: 'var(--md-primary-container)', onPrimaryContainer: 'var(--md-on-primary-container)',
+                        secondary: 'var(--md-secondary)', onSecondary: 'var(--md-on-secondary)',
+                        secondaryContainer: 'var(--md-secondary-container)', onSecondaryContainer: 'var(--md-on-secondary-container)',
+                        tertiary: 'var(--md-tertiary)', onTertiary: 'var(--md-on-tertiary)',
+                        tertiaryContainer: 'var(--md-tertiary-container)', onTertiaryContainer: 'var(--md-on-tertiary-container)',
+                        error: 'var(--md-error)', onError: 'var(--md-on-error)',
+                        errorContainer: 'var(--md-error-container)', onErrorContainer: 'var(--md-on-error-container)',
+                        background: 'var(--md-background)', onBackground: 'var(--md-on-background)',
+                        surface: 'var(--md-surface)', onSurface: 'var(--md-on-surface)',
+                        surfaceVariant: 'var(--md-surface-variant)', onSurfaceVariant: 'var(--md-on-surface-variant)',
+                        outline: 'var(--md-outline)', outlineVariant: 'var(--md-outline-variant)',
+                    },
+                    boxShadow: {
+                        'md3-1': '0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30)',
+                        'md3-2': '0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30)',
+                        'md3-3': '0px 1px 3px 0px rgba(0, 0, 0, 0.30), 0px 4px 8px 3px rgba(0, 0, 0, 0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- External Dependencies: Lucide Icons, Marked, KaTeX -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        /* Base Material 3 Variables - Light */
+        :root {
+            --md-primary: #6750A4; --md-on-primary: #FFFFFF;
+            --md-primary-container: #EADDFF; --md-on-primary-container: #21005D;
+            --md-secondary: #625B71; --md-on-secondary: #FFFFFF;
+            --md-secondary-container: #E8DEF8; --md-on-secondary-container: #1D192B;
+            --md-tertiary: #7D5260; --md-on-tertiary: #FFFFFF;
+            --md-tertiary-container: #FFD8E4; --md-on-tertiary-container: #31111D;
+            --md-error: #B3261E; --md-on-error: #FFFFFF;
+            --md-error-container: #F9DEDC; --md-on-error-container: #410E0B;
+            --md-background: #FFFBFE; --md-on-background: #1C1B1F;
+            --md-surface: #FFFBFE; --md-on-surface: #1C1B1F;
+            --md-surface-variant: #E7E0EC; --md-on-surface-variant: #49454F;
+            --md-outline: #79747E; --md-outline-variant: #CAC4D0;
+            --user-font: 'Roboto', sans-serif;
+            --sys-font: var(--user-font);
+            --calc-font: var(--user-font);
+            --ai-font: var(--user-font);
+            --calc-btn-radius: 9999px; /* Dynamic Border Radius */
+        }
+
+        /* Dark Theme Variables */
+        .dark {
+            --md-primary: #D0BCFF; --md-on-primary: #381E72;
+            --md-primary-container: #4F378B; --md-on-primary-container: #EADDFF;
+            --md-secondary: #CCC2DC; --md-on-secondary: #332D41;
+            --md-secondary-container: #4A4458; --md-on-secondary-container: #E8DEF8;
+            --md-tertiary: #EFB8C8; --md-on-tertiary: #492532;
+            --md-tertiary-container: #633B48; --md-on-tertiary-container: #FFD8E4;
+            --md-error: #F2B8B5; --md-on-error: #601410;
+            --md-error-container: #8C1D18; --md-on-error-container: #F9DEDC;
+            --md-background: #1C1B1F; --md-on-background: #E6E1E5;
+            --md-surface: #1C1B1F; --md-on-surface: #E6E1E5;
+            --md-surface-variant: #49454F; --md-on-surface-variant: #CAC4D0;
+            --md-outline: #938F99; --md-outline-variant: #49454F;
+        }
+
+        body { font-family: var(--sys-font); background-color: var(--md-background); color: var(--md-on-background); overflow: hidden; user-select: none; -webkit-tap-highlight-color: transparent; }
+        .calc-display-main, .calc-display-sub, .calc-grid, #prog-main-disp { font-family: var(--calc-font); }
+        #ai-chat-box { font-family: var(--ai-font); }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--md-outline-variant); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--md-outline); }
+
+        .ripple { position: relative; overflow: hidden; }
+        .ripple .ripple-span { position: absolute; border-radius: 50%; transform: scale(0); animation: ripple-animation 600ms linear; background-color: currentColor; opacity: 0.15; pointer-events: none; }
+        @keyframes ripple-animation { to { transform: scale(4); opacity: 0; } }
+
+        .view-section { display: none !important; height: 100%; flex-direction: column; animation: fadeIn 0.2s ease-out forwards; }
+        .view-section.active { display: flex !important; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .calc-display-main { font-size: clamp(2.5rem, 12vw, 4.5rem); font-weight: 300; letter-spacing: -1px; line-height: 1.1; }
+        .calc-display-sub { font-size: clamp(1rem, 4vw, 1.5rem); font-weight: 400; opacity: 0.7; }
+        
+        .nav-item.active { background-color: var(--md-secondary-container); color: var(--md-on-secondary-container); font-weight: 500; }
+
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 16px; flex-shrink: 0; }
+        .calc-grid-sci { grid-template-columns: repeat(5, 1fr); }
+        .calc-btn { 
+            border-radius: var(--calc-btn-radius); /* Applied dynamically */
+            display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 400; transition: all 0.15s ease-out; cursor: pointer; aspect-ratio: 1 / 1; 
+        }
+        @media (min-width: 768px) { .calc-btn { aspect-ratio: auto; min-height: 64px; } }
+        .calc-btn:active { transform: scale(0.92); }
+        
+        .btn-surface { background-color: var(--md-surface-variant); color: var(--md-on-surface-variant); }
+        .btn-secondary { background-color: var(--md-secondary-container); color: var(--md-on-secondary-container); }
+        .btn-primary { background-color: var(--md-primary); color: var(--md-on-primary); }
+        .btn-tertiary { background-color: var(--md-tertiary-container); color: var(--md-on-tertiary-container); }
+
+        .lucide { width: 1.2em; height: 1.2em; }
+        .spinner { border: 3px solid var(--md-surface-variant); border-top: 3px solid var(--md-primary); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--md-on-surface); color: var(--md-surface); padding: 12px 24px; border-radius: 8px; opacity: 0; transition: all 0.3s cubic-bezier(0.2, 0, 0, 1); z-index: 9999; box-shadow: var(--md3-3); font-weight: 500;}
+        #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        /* AI Markdown/KaTeX tweaks */
+        .ai-message p { margin-bottom: 0.5rem; }
+        .ai-message p:last-child { margin-bottom: 0; }
+        .ai-message pre { background: rgba(0,0,0,0.05); padding: 0.75rem; border-radius: 0.5rem; overflow-x: auto; font-family: monospace; font-size: 0.85em; margin-top: 0.5rem; margin-bottom: 0.5rem; border: 1px solid var(--md-outline-variant); }
+        .dark .ai-message pre { background: rgba(255,255,255,0.05); }
+        
+        /* Ensure KaTeX block elements scroll horizontally instead of breaking layout */
+        .katex-display { overflow-x: auto; overflow-y: hidden; padding: 0.5rem 0; margin: 0 !important; max-width: 100%; }
+        /* Dictionary entry styles */
+        .dict-meaning { border-left: 3px solid var(--md-primary); padding-left: 1rem; margin-bottom: 1rem; }
+    </style>
+</head>
+<body class="h-screen w-screen flex antialiased flex-row">
+
+    <!-- Navigation Drawer -->
+    <nav id="nav-drawer" class="w-72 bg-surface h-full flex flex-col absolute z-50 transform -translate-x-full transition-transform duration-300 md:relative md:translate-x-0 border-r border-outlineVariant shadow-md3-2 md:shadow-none flex-shrink-0">
+        <div class="p-6 pb-2 text-2xl font-medium tracking-tight text-onSurface flex items-center justify-between">
+            <span>Calc OS</span>
+            <button id="close-drawer-btn" class="md:hidden ripple p-2 rounded-full text-onSurfaceVariant hover:bg-surfaceVariant">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <div class="flex-grow overflow-y-auto px-3 py-2 space-y-1">
+            <div class="text-xs font-semibold text-outline px-4 py-2 uppercase tracking-wider">Calculators</div>
+            <button class="nav-item active w-full text-left px-4 py-3 rounded-full flex items-center gap-3 ripple" data-view="standard">
+                <i data-lucide="calculator"></i> Standard
+            </button>
+            <button class="nav-item w-full text-left px-4 py-3 rounded-full flex items-center gap-3 ripple" data-view="scientific">
+                <i data-lucide="flask-conical"></i> Scientific
+            </button>
+            <button class="nav-item w-full text-left px-4 py-3 rounded-full flex items-center gap-3 ripple" data-view="programmer">
+                <i data-lucide="terminal"></i> Programmer
+            </button>
+            <div class="text-xs font-semibold text-outline px-4 py-2 mt-4 uppercase tracking-wider">Tools</div>
+            <button class="nav-item w-full text-left px-4 py-3 rounded-full flex items-center gap-3 ripple" data-view="converter">
+                <i data-lucide="arrow-left-right"></i> Converter
+            </button>
+            <button class="nav-item w-full text-left px-4 py-3 rounded-full flex items-center gap-3 ripple" data-view="financial">
+                <i data-lucide="landmark"></i> Financial
+            </button>
+            <button class="nav-item w-full text-left px-4 py-3 rounded-full flex items-center gap-3 ripple" data-view="date">
+                <i data-lucide="calendar"></i> Date Calc
+            </button>
+            <button class="nav-item w-full text-left px-4 py-3 rounded-full flex items-center gap-3 ripple" data-view="health">
+                <i data-lucide="heart"></i> Health (BMI)
+            </button>
+            <button class="nav-item w-full text-left px-4 py-3 rounded-full flex items-center gap-3 ripple" data-view="dictionary">
+                <i data-lucide="book-open"></i> Dictionary
+            </button>
+            <button class="nav-item w-full text-left px-4 py-3 rounded-full flex items-center gap-3 ripple" data-view="worldtime">
+                <i data-lucide="globe"></i> World Time
+            </button>
+            <div class="text-xs font-semibold text-outline px-4 py-2 mt-4 uppercase tracking-wider">Intelligence & Help</div>
+            <button class="nav-item w-full text-left px-4 py-3 rounded-full flex items-center gap-3 ripple" data-view="ai">
+                <i data-lucide="bot"></i> AI Assistant
+            </button>
+            <button class="nav-item w-full text-left px-4 py-3 rounded-full flex items-center gap-3 ripple" data-view="manual">
+                <i data-lucide="help-circle"></i> User Manual
+            </button>
+        </div>
+        <div class="p-3 border-t border-outlineVariant">
+            <button class="nav-item w-full text-left px-4 py-3 rounded-full flex items-center gap-3 ripple" data-view="settings">
+                <i data-lucide="settings"></i> Settings
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="flex-grow h-full flex flex-col relative bg-background w-full overflow-hidden">
+        
+        <!-- Top App Bar -->
+        <header class="h-16 flex-shrink-0 flex items-center justify-between px-4 text-onSurface z-10">
+            <div class="flex items-center gap-4">
+                <button id="menu-btn" class="md:hidden p-2 rounded-full hover:bg-surfaceVariant ripple">
+                    <i data-lucide="menu"></i>
+                </button>
+                <h1 id="app-bar-title" class="text-xl font-normal">Standard</h1>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="history-btn" class="p-2 rounded-full hover:bg-surfaceVariant ripple hidden-on-non-calc">
+                    <i data-lucide="history"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- View: Standard Calculator -->
+        <main id="view-standard" class="view-section active h-full flex flex-col">
+            <div class="flex-grow flex flex-col justify-end px-6 pb-2 text-right overflow-hidden">
+                <div id="std-history-disp" class="calc-display-sub text-onSurfaceVariant min-h-[2rem] overflow-hidden text-ellipsis whitespace-nowrap"></div>
+                <div id="std-main-disp" class="calc-display-main text-onSurface break-words overflow-y-auto">0</div>
+            </div>
+            
+            <div class="flex justify-between px-6 py-2 text-sm font-medium text-onSurfaceVariant flex-shrink-0">
+                <button class="p-2 hover:bg-surfaceVariant rounded ripple mem-btn" data-action="mc">MC</button>
+                <button class="p-2 hover:bg-surfaceVariant rounded ripple mem-btn" data-action="mr">MR</button>
+                <button class="p-2 hover:bg-surfaceVariant rounded ripple mem-btn" data-action="m+">M+</button>
+                <button class="p-2 hover:bg-surfaceVariant rounded ripple mem-btn" data-action="m-">M-</button>
+                <button class="p-2 hover:bg-surfaceVariant rounded ripple mem-btn" data-action="ms">MS</button>
+            </div>
+            
+            <div class="calc-grid bg-surface rounded-t-[32px] shadow-md3-3 pb-safe">
+                <button class="calc-btn btn-secondary ripple" data-val="clear">C</button>
+                <button class="calc-btn btn-secondary ripple" data-val="clear-entry">CE</button>
+                <button class="calc-btn btn-secondary ripple" data-val="backspace"><i data-lucide="delete"></i></button>
+                <button class="calc-btn btn-tertiary ripple" data-val="/">÷</button>
+                
+                <button class="calc-btn btn-surface ripple" data-val="7">7</button>
+                <button class="calc-btn btn-surface ripple" data-val="8">8</button>
+                <button class="calc-btn btn-surface ripple" data-val="9">9</button>
+                <button class="calc-btn btn-tertiary ripple" data-val="*">×</button>
+                
+                <button class="calc-btn btn-surface ripple" data-val="4">4</button>
+                <button class="calc-btn btn-surface ripple" data-val="5">5</button>
+                <button class="calc-btn btn-surface ripple" data-val="6">6</button>
+                <button class="calc-btn btn-tertiary ripple" data-val="-">−</button>
+                
+                <button class="calc-btn btn-surface ripple" data-val="1">1</button>
+                <button class="calc-btn btn-surface ripple" data-val="2">2</button>
+                <button class="calc-btn btn-surface ripple" data-val="3">3</button>
+                <button class="calc-btn btn-tertiary ripple" data-val="+">+</button>
+                
+                <button class="calc-btn btn-surface ripple" data-val="negate">±</button>
+                <button class="calc-btn btn-surface ripple" data-val="0">0</button>
+                <button class="calc-btn btn-surface ripple" data-val=".">.</button>
+                <button class="calc-btn btn-primary ripple" data-val="=">=</button>
+            </div>
+        </main>
+
+        <!-- View: Scientific Calculator -->
+        <main id="view-scientific" class="view-section h-full flex flex-col">
+            <div class="flex-grow flex flex-col justify-end px-6 pb-2 text-right overflow-hidden">
+                <div id="sci-history-disp" class="calc-display-sub text-onSurfaceVariant min-h-[2rem] overflow-hidden text-ellipsis whitespace-nowrap"></div>
+                <div id="sci-main-disp" class="calc-display-main text-onSurface break-words overflow-y-auto">0</div>
+            </div>
+            <div class="flex items-center gap-4 px-6 py-2 flex-shrink-0">
+                <div class="bg-surfaceVariant rounded-full flex text-sm overflow-hidden">
+                    <button id="deg-btn" class="px-4 py-1 bg-primary text-onPrimary font-medium transition-colors">DEG</button>
+                    <button id="rad-btn" class="px-4 py-1 text-onSurfaceVariant font-medium transition-colors hover:bg-outlineVariant">RAD</button>
+                </div>
+            </div>
+            <div class="calc-grid calc-grid-sci bg-surface rounded-t-[32px] shadow-md3-3 pb-safe">
+                <button class="calc-btn btn-secondary text-sm ripple" data-val="sin">sin</button>
+                <button class="calc-btn btn-secondary text-sm ripple" data-val="cos">cos</button>
+                <button class="calc-btn btn-secondary text-sm ripple" data-val="tan">tan</button>
+                <button class="calc-btn btn-secondary text-sm ripple" data-val="clear">C</button>
+                <button class="calc-btn btn-secondary ripple" data-val="backspace"><i data-lucide="delete"></i></button>
+
+                <button class="calc-btn btn-secondary text-sm ripple" data-val="asin">sin⁻¹</button>
+                <button class="calc-btn btn-secondary text-sm ripple" data-val="acos">cos⁻¹</button>
+                <button class="calc-btn btn-secondary text-sm ripple" data-val="atan">tan⁻¹</button>
+                <button class="calc-btn btn-tertiary ripple" data-val="^">xʸ</button>
+                <button class="calc-btn btn-tertiary ripple" data-val="/">÷</button>
+                
+                <button class="calc-btn btn-secondary text-sm ripple" data-val="log">log</button>
+                <button class="calc-btn btn-surface ripple" data-val="7">7</button>
+                <button class="calc-btn btn-surface ripple" data-val="8">8</button>
+                <button class="calc-btn btn-surface ripple" data-val="9">9</button>
+                <button class="calc-btn btn-tertiary ripple" data-val="*">×</button>
+
+                <button class="calc-btn btn-secondary text-sm ripple" data-val="ln">ln</button>
+                <button class="calc-btn btn-surface ripple" data-val="4">4</button>
+                <button class="calc-btn btn-surface ripple" data-val="5">5</button>
+                <button class="calc-btn btn-surface ripple" data-val="6">6</button>
+                <button class="calc-btn btn-tertiary ripple" data-val="-">−</button>
+
+                <button class="calc-btn btn-secondary text-sm ripple" data-val="sqrt">√</button>
+                <button class="calc-btn btn-surface ripple" data-val="1">1</button>
+                <button class="calc-btn btn-surface ripple" data-val="2">2</button>
+                <button class="calc-btn btn-surface ripple" data-val="3">3</button>
+                <button class="calc-btn btn-tertiary ripple" data-val="+">+</button>
+
+                <button class="calc-btn btn-secondary text-sm ripple" data-val="pi">π</button>
+                <button class="calc-btn btn-secondary text-sm ripple" data-val="e">e</button>
+                <button class="calc-btn btn-surface ripple" data-val="0">0</button>
+                <button class="calc-btn btn-surface ripple" data-val=".">.</button>
+                <button class="calc-btn btn-primary ripple" data-val="=">=</button>
+            </div>
+        </main>
+
+        <!-- View: Programmer Calculator -->
+        <main id="view-programmer" class="view-section h-full flex flex-col">
+            <div class="flex-grow flex flex-col justify-end px-6 pb-2 overflow-hidden">
+                <div id="prog-main-disp" class="calc-display-main text-right text-onSurface break-words overflow-y-auto">0</div>
+                <div class="mt-4 flex flex-col gap-1 text-sm font-mono text-onSurfaceVariant flex-shrink-0">
+                    <div class="flex cursor-pointer hover:bg-surfaceVariant rounded p-1 ripple prog-base-sel" data-base="16"><span class="w-10 font-bold">HEX</span> <span id="prog-hex" class="flex-grow text-right truncate">0</span></div>
+                    <div class="flex cursor-pointer hover:bg-surfaceVariant rounded p-1 ripple prog-base-sel bg-surfaceVariant text-onSurface" data-base="10"><span class="w-10 font-bold">DEC</span> <span id="prog-dec" class="flex-grow text-right truncate">0</span></div>
+                    <div class="flex cursor-pointer hover:bg-surfaceVariant rounded p-1 ripple prog-base-sel" data-base="8"><span class="w-10 font-bold">OCT</span> <span id="prog-oct" class="flex-grow text-right truncate">0</span></div>
+                    <div class="flex cursor-pointer hover:bg-surfaceVariant rounded p-1 ripple prog-base-sel" data-base="2"><span class="w-10 font-bold">BIN</span> <span id="prog-bin" class="flex-grow text-right truncate">0000 0000</span></div>
+                </div>
+            </div>
+            <div class="calc-grid calc-grid-sci bg-surface rounded-t-[32px] shadow-md3-3 text-sm pb-safe">
+                <button class="calc-btn btn-secondary ripple text-xs" data-val="and">AND</button>
+                <button class="calc-btn btn-secondary ripple text-xs" data-val="or">OR</button>
+                <button class="calc-btn btn-secondary ripple text-xs" data-val="xor">XOR</button>
+                <button class="calc-btn btn-secondary ripple text-xs" data-val="clear">C</button>
+                <button class="calc-btn btn-secondary ripple" data-val="backspace"><i data-lucide="delete"></i></button>
+                
+                <button class="calc-btn btn-secondary ripple text-xs" data-val="not">NOT</button>
+                <button class="calc-btn btn-secondary ripple text-xs" data-val="lsh">LSH</button>
+                <button class="calc-btn btn-secondary ripple text-xs" data-val="rsh">RSH</button>
+                <button class="calc-btn btn-tertiary ripple text-xs" data-val="mod">MOD</button>
+                <button class="calc-btn btn-tertiary ripple text-lg" data-val="/">÷</button>
+                
+                <button class="calc-btn btn-surface ripple prog-hex-btn opacity-30" disabled data-val="A">A</button>
+                <button class="calc-btn btn-surface ripple" data-val="7">7</button>
+                <button class="calc-btn btn-surface ripple" data-val="8">8</button>
+                <button class="calc-btn btn-surface ripple" data-val="9">9</button>
+                <button class="calc-btn btn-tertiary ripple text-lg" data-val="*">×</button>
+                
+                <button class="calc-btn btn-surface ripple prog-hex-btn opacity-30" disabled data-val="B">B</button>
+                <button class="calc-btn btn-surface ripple" data-val="4">4</button>
+                <button class="calc-btn btn-surface ripple" data-val="5">5</button>
+                <button class="calc-btn btn-surface ripple" data-val="6">6</button>
+                <button class="calc-btn btn-tertiary ripple text-lg" data-val="-">−</button>
+                
+                <button class="calc-btn btn-surface ripple prog-hex-btn opacity-30" disabled data-val="C">C</button>
+                <button class="calc-btn btn-surface ripple" data-val="1">1</button>
+                <button class="calc-btn btn-surface ripple" data-val="2">2</button>
+                <button class="calc-btn btn-surface ripple" data-val="3">3</button>
+                <button class="calc-btn btn-tertiary ripple text-lg" data-val="+">+</button>
+                
+                <button class="calc-btn btn-surface ripple prog-hex-btn opacity-30" disabled data-val="D">D</button>
+                <button class="calc-btn btn-surface ripple prog-hex-btn opacity-30" disabled data-val="E">E</button>
+                <button class="calc-btn btn-surface ripple prog-hex-btn opacity-30" disabled data-val="F">F</button>
+                <button class="calc-btn btn-surface ripple" data-val="0">0</button>
+                <button class="calc-btn btn-primary ripple text-lg" data-val="=">=</button>
+            </div>
+        </main>
+
+        <!-- View: Converter -->
+        <main id="view-converter" class="view-section overflow-y-auto p-4 md:p-8 flex flex-col gap-6 h-full w-full">
+            <div class="bg-surfaceContainer p-6 rounded-[24px] shadow-md3-1 bg-surface flex-shrink-0">
+                <label class="block text-sm font-medium text-onSurfaceVariant mb-2">Category</label>
+                <div class="relative">
+                    <select id="conv-category" class="w-full bg-surfaceVariant text-onSurfaceVariant p-4 rounded-xl outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer">
+                        <option value="length">Length</option>
+                        <option value="weight">Weight & Mass</option>
+                        <option value="volume">Volume</option>
+                        <option value="area">Area</option>
+                        <option value="temperature">Temperature</option>
+                        <option value="data">Data Size</option>
+                        <option value="speed">Speed</option>
+                        <option value="time">Time</option>
+                        <option value="currency">Crypto/Currency (Live API)</option>
+                        <option value="angle">Angle</option>
+                        <option value="pressure">Pressure</option>
+                        <option value="energy">Energy</option>
+                        <option value="power">Power</option>
+                        <option value="data_rate">Data Transfer Rate</option>
+                        <option value="force">Force</option>
+                    </select>
+                    <i data-lucide="chevron-down" class="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none text-onSurfaceVariant"></i>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-shrink-0">
+                <div class="bg-surface p-6 rounded-[24px] shadow-md3-1 flex flex-col gap-4">
+                    <label class="text-sm font-medium text-onSurfaceVariant">From</label>
+                    <input type="number" id="conv-from-val" value="1" class="w-full bg-transparent text-4xl text-onSurface outline-none border-b-2 border-outlineVariant focus:border-primary transition-colors pb-2" placeholder="0">
+                    <select id="conv-from-unit" class="w-full bg-surfaceVariant text-onSurfaceVariant p-3 rounded-lg outline-none cursor-pointer"></select>
+                </div>
+                <div class="bg-surface p-6 rounded-[24px] shadow-md3-1 flex flex-col gap-4">
+                    <label class="text-sm font-medium text-onSurfaceVariant">To</label>
+                    <input type="number" id="conv-to-val" readonly class="w-full bg-transparent text-4xl text-onSurface outline-none border-b-2 border-transparent pb-2" placeholder="0">
+                    <select id="conv-to-unit" class="w-full bg-surfaceVariant text-onSurfaceVariant p-3 rounded-lg outline-none cursor-pointer"></select>
+                </div>
+            </div>
+        </main>
+
+        <!-- View: Financial -->
+        <main id="view-financial" class="view-section overflow-y-auto p-4 md:p-8 h-full">
+            <div class="max-w-3xl mx-auto w-full flex flex-col gap-6 pb-8">
+                <div class="bg-surface p-6 rounded-[24px] shadow-md3-1">
+                    <h2 class="text-xl font-medium mb-4 text-primary flex items-center gap-2"><i data-lucide="landmark"></i> Loan Calculator</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-onSurfaceVariant mb-1">Principal Amount ($)</label>
+                            <input type="number" id="fin-principal" value="10000" class="w-full bg-surfaceVariant p-4 rounded-xl outline-none focus:ring-2 focus:ring-primary text-onSurface">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-onSurfaceVariant mb-1">Annual Interest Rate (%)</label>
+                            <input type="number" id="fin-rate" value="5" step="0.1" class="w-full bg-surfaceVariant p-4 rounded-xl outline-none focus:ring-2 focus:ring-primary text-onSurface">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-onSurfaceVariant mb-1">Loan Term (Years)</label>
+                            <input type="number" id="fin-years" value="5" class="w-full bg-surfaceVariant p-4 rounded-xl outline-none focus:ring-2 focus:ring-primary text-onSurface">
+                        </div>
+                        <div class="flex items-end">
+                            <button id="fin-calc-btn" class="w-full bg-primary text-onPrimary p-4 rounded-full ripple shadow-md3-1 hover:shadow-md3-2 transition-all font-medium">Calculate</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="fin-result" class="bg-surface p-6 rounded-[24px] shadow-md3-1 hidden flex-col items-center text-center">
+                    <p class="text-onSurfaceVariant mb-1">Monthly Payment</p>
+                    <p id="fin-monthly" class="text-5xl font-light text-primary mb-4">$0.00</p>
+                    <div class="flex gap-8 w-full justify-center text-sm">
+                        <div><p class="text-onSurfaceVariant">Total Interest</p><p id="fin-total-int" class="text-lg font-medium text-onSurface">$0.00</p></div>
+                        <div><p class="text-onSurfaceVariant">Total Payment</p><p id="fin-total-pay" class="text-lg font-medium text-onSurface">$0.00</p></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- View: Date Calculator -->
+        <main id="view-date" class="view-section overflow-y-auto p-4 md:p-8 h-full">
+            <div class="max-w-2xl mx-auto w-full flex flex-col gap-6">
+                <div class="bg-surface p-6 rounded-[24px] shadow-md3-1">
+                    <h2 class="text-xl font-medium mb-4 text-primary flex items-center gap-2"><i data-lucide="calendar"></i> Date Difference</h2>
+                    <div class="flex flex-col gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-onSurfaceVariant mb-1">From Date</label>
+                            <input type="date" id="date-from" class="w-full bg-surfaceVariant p-4 rounded-xl outline-none focus:ring-2 focus:ring-primary text-onSurface">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-onSurfaceVariant mb-1">To Date</label>
+                            <input type="date" id="date-to" class="w-full bg-surfaceVariant p-4 rounded-xl outline-none focus:ring-2 focus:ring-primary text-onSurface">
+                        </div>
+                        <div id="date-diff-result" class="mt-4 p-4 bg-primaryContainer text-onPrimaryContainer rounded-xl text-center text-lg font-medium shadow-inner">
+                            Select dates to see difference
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- View: Health (BMI) -->
+        <main id="view-health" class="view-section overflow-y-auto p-4 md:p-8 h-full">
+            <div class="max-w-2xl mx-auto w-full flex flex-col gap-6 pb-8">
+                <div class="bg-surface p-6 rounded-[24px] shadow-md3-1">
+                    <h2 class="text-xl font-medium mb-4 text-primary flex items-center gap-2"><i data-lucide="heart"></i> BMI Calculator</h2>
+                    <div class="flex bg-surfaceVariant rounded-lg mb-6 p-1">
+                        <button id="bmi-metric" class="flex-1 py-2 rounded-md bg-surface text-onSurface shadow text-sm font-medium transition-all">Metric</button>
+                        <button id="bmi-imperial" class="flex-1 py-2 rounded-md text-onSurfaceVariant text-sm font-medium transition-all">Imperial</button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div id="bmi-height-container">
+                            <label class="block text-sm font-medium text-onSurfaceVariant mb-1">Height (<span id="bmi-h-unit">cm</span>)</label>
+                            <input type="number" id="bmi-height" class="w-full bg-surfaceVariant p-4 rounded-xl outline-none focus:ring-2 focus:ring-primary text-onSurface">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-onSurfaceVariant mb-1">Weight (<span id="bmi-w-unit">kg</span>)</label>
+                            <input type="number" id="bmi-weight" class="w-full bg-surfaceVariant p-4 rounded-xl outline-none focus:ring-2 focus:ring-primary text-onSurface">
+                        </div>
+                        <div class="md:col-span-2">
+                            <button id="bmi-calc-btn" class="w-full bg-primary text-onPrimary p-4 rounded-full ripple shadow-md3-1 hover:shadow-md3-2 transition-all font-medium">Calculate BMI</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="bmi-result-card" class="bg-surface p-6 rounded-[24px] shadow-md3-1 hidden flex-col items-center text-center">
+                    <p class="text-onSurfaceVariant mb-1">Your BMI</p>
+                    <p id="bmi-score" class="text-6xl font-light text-primary mb-2">0.0</p>
+                    <p id="bmi-category" class="text-xl font-medium px-4 py-1 rounded-full bg-surfaceVariant text-onSurfaceVariant">Unknown</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- View: Dictionary -->
+        <main id="view-dictionary" class="view-section overflow-y-auto p-4 md:p-8 h-full">
+            <div class="max-w-2xl mx-auto w-full flex flex-col gap-6 pb-8">
+                <div class="bg-surface p-6 rounded-[24px] shadow-md3-1">
+                    <h2 class="text-xl font-medium mb-4 text-primary flex items-center gap-2"><i data-lucide="book-open"></i> English Dictionary</h2>
+                    <p class="text-sm text-onSurfaceVariant mb-4">Powered by DictionaryAPI. Look up math terms or general words.</p>
+                    <div class="flex gap-2 relative">
+                        <input type="text" id="dict-input" placeholder="Enter a word (e.g. calculus)" class="flex-grow bg-surfaceVariant text-onSurface p-4 rounded-xl outline-none focus:ring-2 focus:ring-primary transition-all">
+                        <button id="dict-search-btn" class="bg-primary text-onPrimary px-6 rounded-xl ripple flex items-center justify-center hover:shadow-md3-1 transition-shadow"><i data-lucide="search"></i></button>
+                    </div>
+                </div>
+                <div id="dict-result" class="bg-surface p-6 rounded-[24px] shadow-md3-1 hidden flex-col gap-4">
+                    <!-- Injected Dictionary Content -->
+                </div>
+            </div>
+        </main>
+
+        <!-- View: World Time -->
+        <main id="view-worldtime" class="view-section overflow-y-auto p-4 md:p-8 h-full">
+            <div class="max-w-2xl mx-auto w-full flex flex-col gap-6 pb-8">
+                <div class="bg-surface p-6 rounded-[24px] shadow-md3-1">
+                    <h2 class="text-xl font-medium mb-4 text-primary flex items-center gap-2"><i data-lucide="globe"></i> World Time</h2>
+                    <p class="text-sm text-onSurfaceVariant mb-4">Powered by WorldTimeAPI.</p>
+                    <div class="relative mb-6">
+                        <select id="wt-timezone" class="w-full bg-surfaceVariant text-onSurface p-4 rounded-xl outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer">
+                            <option value="">Loading timezones...</option>
+                        </select>
+                        <i data-lucide="chevron-down" class="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none text-onSurfaceVariant"></i>
+                    </div>
+                    <div id="wt-result" class="bg-primaryContainer text-onPrimaryContainer p-6 rounded-[24px] text-center hidden flex-col items-center gap-2 shadow-inner">
+                        <p id="wt-date" class="text-lg font-medium opacity-80">...</p>
+                        <p id="wt-time" class="text-6xl font-light">00:00:00</p>
+                        <p id="wt-abbr" class="text-sm font-bold bg-surface/30 px-3 py-1 rounded-full mt-2">...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- View: User Manual -->
+        <main id="view-manual" class="view-section overflow-y-auto p-4 md:p-8 h-full">
+            <div class="max-w-3xl mx-auto w-full flex flex-col gap-6 pb-8 text-onSurface">
+                <h2 class="text-3xl font-light text-primary mb-2 flex items-center gap-3"><i data-lucide="help-circle" class="w-8 h-8"></i> User Manual</h2>
+                
+                <section class="bg-surface p-6 rounded-[24px] shadow-md3-1 border border-outlineVariant">
+                    <h3 class="text-xl font-medium text-primary mb-3">Memory Functions Explained</h3>
+                    <ul class="space-y-3 text-sm leading-relaxed">
+                        <li><strong class="text-onSurface bg-surfaceVariant px-2 py-0.5 rounded">MC (Memory Clear)</strong> - Erases the currently stored memory value back to 0.</li>
+                        <li><strong class="text-onSurface bg-surfaceVariant px-2 py-0.5 rounded">MR (Memory Recall)</strong> - Replaces your current display with the stored memory value.</li>
+                        <li><strong class="text-onSurface bg-surfaceVariant px-2 py-0.5 rounded">MS (Memory Store)</strong> - Stores the current displayed number into memory, overwriting anything previously saved.</li>
+                        <li><strong class="text-onSurface bg-surfaceVariant px-2 py-0.5 rounded">M+ (Memory Add)</strong> - Adds the currently displayed number to the value already stored in memory.</li>
+                        <li><strong class="text-onSurface bg-surfaceVariant px-2 py-0.5 rounded">M- (Memory Subtract)</strong> - Subtracts the currently displayed number from the value stored in memory.</li>
+                    </ul>
+                </section>
+
+                <section class="bg-surface p-6 rounded-[24px] shadow-md3-1 border border-outlineVariant">
+                    <h3 class="text-xl font-medium text-primary mb-3">AI Assistant & KaTeX</h3>
+                    <p class="text-sm leading-relaxed mb-3">
+                        The AI Assistant is powered by a cloud LLM and remembers your last 20 messages for deep context tracking. It automatically formats all mathematical outputs using <strong>KaTeX</strong>, an ultra-fast LaTeX math rendering library.
+                    </p>
+                    <p class="text-sm leading-relaxed">
+                        <strong>Tip:</strong> You can ask the AI to "explain the quadratic formula" or "solve 3x + 5 = 20" and it will render perfectly styled mathematical equations natively on the screen.
+                    </p>
+                </section>
+
+                <section class="bg-surface p-6 rounded-[24px] shadow-md3-1 border border-outlineVariant">
+                    <h3 class="text-xl font-medium text-primary mb-3">Keyboard Shortcuts</h3>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div class="bg-surfaceVariant p-3 rounded-lg text-center"><kbd class="font-mono font-bold">0-9, A-F</kbd><br><span class="opacity-80 text-xs">Numbers / Hex</span></div>
+                        <div class="bg-surfaceVariant p-3 rounded-lg text-center"><kbd class="font-mono font-bold">+ - * /</kbd><br><span class="opacity-80 text-xs">Basic Math</span></div>
+                        <div class="bg-surfaceVariant p-3 rounded-lg text-center"><kbd class="font-mono font-bold">Enter / =</kbd><br><span class="opacity-80 text-xs">Calculate</span></div>
+                        <div class="bg-surfaceVariant p-3 rounded-lg text-center"><kbd class="font-mono font-bold">Backspace</kbd><br><span class="opacity-80 text-xs">Delete Last</span></div>
+                        <div class="bg-surfaceVariant p-3 rounded-lg text-center"><kbd class="font-mono font-bold">Escape</kbd><br><span class="opacity-80 text-xs">Clear (C)</span></div>
+                        <div class="bg-surfaceVariant p-3 rounded-lg text-center"><kbd class="font-mono font-bold">Delete</kbd><br><span class="opacity-80 text-xs">Clear Entry (CE)</span></div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- View: AI Math Assistant -->
+        <main id="view-ai" class="view-section h-full flex flex-col overflow-hidden bg-surface pb-safe">
+            <div class="p-4 bg-primary text-onPrimary flex items-center justify-between shadow-md3-1 flex-shrink-0 z-10">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="bot" class="w-8 h-8"></i>
+                    <div>
+                        <h2 class="text-lg font-medium leading-tight">Math AI Assistant</h2>
+                        <p class="text-xs opacity-80">KaTeX Math + Context Memory</p>
+                    </div>
+                </div>
+                <button id="ai-clear-btn" class="p-2 rounded-full hover:bg-white/20 transition-colors" title="Clear Chat">
+                    <i data-lucide="trash-2"></i>
+                </button>
+            </div>
+            
+            <div id="ai-chat-box" class="flex-grow overflow-y-auto p-4 md:p-6 flex flex-col gap-6 bg-background">
+                <!-- AI Messages Injection -->
+                <div class="self-start flex w-full gap-3 default-ai-msg">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Aiden274&backgroundColor=transparent" class="w-8 h-8 rounded-full flex-shrink-0 mt-1 bg-surfaceVariant border border-outlineVariant p-0.5" alt="AI">
+                    <div class="text-onSurface w-full overflow-hidden ai-message leading-relaxed pt-1">
+                        <p>Hello! I'm your Math AI Assistant. Ask me to solve complex equations or explain mathematical concepts. I format my answers clearly and remember our conversation!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-surface shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] border-t border-outlineVariant flex items-center gap-2 flex-shrink-0">
+                <form id="ai-chat-form" class="w-full flex items-center gap-2 relative max-w-4xl mx-auto">
+                    <input type="text" id="ai-chat-input" placeholder="Ask a math question... (e.g. Integral of x^2)" autocomplete="off" class="flex-grow bg-surfaceVariant text-onSurface p-4 pl-5 pr-14 rounded-full outline-none focus:ring-2 focus:ring-primary transition-all shadow-inner">
+                    <button type="submit" class="absolute right-2 p-2 bg-primary text-onPrimary rounded-full ripple flex items-center justify-center hover:shadow-md3-1 transition-shadow w-10 h-10">
+                        <i data-lucide="send" class="w-5 h-5 ml-[-2px]"></i>
+                    </button>
+                </form>
+            </div>
+        </main>
+
+        <!-- View: Settings -->
+        <main id="view-settings" class="view-section overflow-y-auto p-4 md:p-8 h-full">
+            <div class="max-w-2xl mx-auto w-full flex flex-col gap-8 pb-8">
+                <h2 class="text-3xl font-light text-primary mb-2">Settings</h2>
+                
+                <!-- Usage Stats Card -->
+                <section class="bg-surface p-6 rounded-[24px] shadow-md3-1 border border-outlineVariant">
+                    <h3 class="text-lg font-medium flex items-center gap-2 mb-4 text-onSurface"><i data-lucide="bar-chart-2" class="text-primary"></i> Usage Statistics</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-surfaceVariant p-4 rounded-xl text-center">
+                            <p class="text-sm text-onSurfaceVariant mb-1">Calculations</p>
+                            <p id="stat-calc" class="text-3xl font-light text-onSurface">0</p>
+                        </div>
+                        <div class="bg-surfaceVariant p-4 rounded-xl text-center">
+                            <p class="text-sm text-onSurfaceVariant mb-1">Conversions</p>
+                            <p id="stat-conv" class="text-3xl font-light text-onSurface">0</p>
+                        </div>
+                        <div class="bg-surfaceVariant p-4 rounded-xl text-center col-span-2">
+                            <p class="text-sm text-onSurfaceVariant mb-1">AI Questions Asked</p>
+                            <p id="stat-ai" class="text-3xl font-light text-primary">0</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="bg-surface p-6 rounded-[24px] shadow-md3-1">
+                    <h3 class="text-lg font-medium flex items-center gap-2 mb-4 text-onSurface"><i data-lucide="palette" class="text-primary"></i> Personalization</h3>
+                    <div class="flex flex-col gap-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-medium text-onSurface">Dark Theme</p>
+                                <p class="text-sm text-onSurfaceVariant">Toggle between light and dark mode</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="theme-toggle" class="sr-only peer">
+                                <div class="w-14 h-7 bg-surfaceVariant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-outline after:border-outline after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary peer-checked:after:bg-onPrimary border border-outlineVariant"></div>
+                            </label>
+                        </div>
+                        <hr class="border-outlineVariant">
+                        <div>
+                            <p class="font-medium text-onSurface mb-1">Calculator Button Shape</p>
+                            <p class="text-sm text-onSurfaceVariant mb-3">Change the border radius of buttons.</p>
+                            <div class="relative w-full max-w-xs mb-3">
+                                <select id="btn-shape-sel" class="w-full bg-surfaceVariant text-onSurface p-3 rounded-lg outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer border border-outlineVariant">
+                                    <option value="9999px">Pill / Circular (Default)</option>
+                                    <option value="16px">Rounded Rect</option>
+                                    <option value="4px">Square</option>
+                                </select>
+                                <i data-lucide="chevron-down" class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-onSurfaceVariant"></i>
+                            </div>
+                        </div>
+                        <hr class="border-outlineVariant">
+                        <div>
+                            <p class="font-medium text-onSurface mb-1">Material You Base Color</p>
+                            <p class="text-sm text-onSurfaceVariant mb-3">Select a HEX color to generate a custom Material 3 palette natively.</p>
+                            <div class="flex flex-wrap items-center gap-3">
+                                <input type="color" id="base-color-picker" value="#6750A4" class="w-12 h-12 rounded cursor-pointer border-none p-0 bg-transparent flex-shrink-0">
+                                <button id="apply-color-btn" class="px-5 py-2 bg-secondaryContainer text-onSecondaryContainer rounded-full ripple font-medium text-sm">Generate</button>
+                                <button id="reset-color-btn" class="px-5 py-2 text-primary hover:bg-primaryContainer rounded-full ripple font-medium text-sm transition-colors">Reset Colors</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="bg-surface p-6 rounded-[24px] shadow-md3-1">
+                    <h3 class="text-lg font-medium flex items-center gap-2 mb-4 text-onSurface"><i data-lucide="type" class="text-primary"></i> Custom Typography</h3>
+                    <div class="flex flex-col gap-4">
+                        <p class="text-sm text-onSurfaceVariant">Save and manage Google Fonts as pills. Target specific areas of the OS.</p>
+                        
+                        <div class="bg-surfaceVariant p-4 rounded-xl flex flex-col gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-onSurfaceVariant mb-1">Google Font Link</label>
+                                <input type="text" id="font-link" placeholder="https://fonts.googleapis.com/css2?family=Roboto..." class="w-full bg-surface p-3 rounded-lg outline-none focus:ring-2 focus:ring-primary text-sm text-onSurface border border-outlineVariant">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-onSurfaceVariant mb-1">Font Family Name</label>
+                                <input type="text" id="font-family" placeholder="'Roboto', sans-serif" class="w-full bg-surface p-3 rounded-lg outline-none focus:ring-2 focus:ring-primary text-sm text-onSurface border border-outlineVariant">
+                            </div>
+                            <button id="save-font-btn" class="self-start px-6 py-2 bg-primary text-onPrimary rounded-full ripple font-medium text-sm">Save Font</button>
+                        </div>
+
+                        <div class="mt-2">
+                            <label class="block text-sm font-medium text-onSurface mb-2">Apply Font To</label>
+                            <div class="relative w-full max-w-xs mb-3">
+                                <select id="font-target" class="w-full bg-surfaceVariant text-onSurface p-3 rounded-lg outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer border border-outlineVariant">
+                                    <option value="--sys-font">Full System (Default)</option>
+                                    <option value="--calc-font">Calculations Only</option>
+                                    <option value="--ai-font">AI Chat Only</option>
+                                </select>
+                                <i data-lucide="chevron-down" class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-onSurfaceVariant"></i>
+                            </div>
+                            <p class="text-xs text-onSurfaceVariant mb-2">Click a saved font pill below to apply to the selected target:</p>
+                            <div id="saved-fonts-pills" class="flex flex-wrap gap-2 min-h-[2rem]">
+                                <!-- Pills injected here -->
+                            </div>
+                        </div>
+                        <button id="reset-font-btn" class="self-start px-6 py-2 text-primary hover:bg-primaryContainer rounded-full ripple font-medium text-sm mt-2 transition-colors">Reset All Fonts</button>
+                    </div>
+                </section>
+
+                <section class="bg-surface p-6 rounded-[24px] shadow-md3-1">
+                    <h3 class="text-lg font-medium flex items-center gap-2 mb-4 text-onSurface"><i data-lucide="database" class="text-primary"></i> Data Management</h3>
+                    <div class="flex flex-wrap gap-4">
+                        <button id="clear-history-btn" class="px-6 py-2 bg-errorContainer text-onErrorContainer rounded-full ripple font-medium text-sm">Clear Calc History</button>
+                        <button id="reset-stats-btn" class="px-6 py-2 border border-error text-error rounded-full ripple font-medium text-sm">Reset Stats</button>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- History Overlay Sidebar -->
+        <div id="history-panel" class="absolute top-16 right-0 w-80 bg-surface h-[calc(100%-4rem)] transform translate-x-full transition-transform duration-300 z-40 border-l border-outlineVariant shadow-md3-2 flex flex-col">
+            <div class="p-4 border-b border-outlineVariant flex justify-between items-center bg-surface z-10">
+                <h3 class="font-medium text-onSurface">Calculation History</h3>
+                <button id="close-history-btn" class="p-2 rounded-full hover:bg-surfaceVariant ripple"><i data-lucide="x"></i></button>
+            </div>
+            <div id="history-list" class="flex-grow overflow-y-auto p-2 flex flex-col gap-1"></div>
+            <div class="p-4 border-t border-outlineVariant bg-surface z-10">
+                <button id="trash-history-btn" class="w-full py-2 flex items-center justify-center gap-2 text-error hover:bg-errorContainer rounded-full transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i> Clear All</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast">Message</div>
+
+    <script>
+        /** GLOBAL STATE & UTILITIES */
+        const APP_ID = 'advanced-calc-os-v5';
+        const AI_APP_ID = 'advanced-calc-ai-v5';
+        
+        const state = {
+            view: 'standard',
+            theme: 'light',
+            history: [],
+            memory: 0,
+            angleMode: 'deg',
+            progBase: 10,
+            stats: { calculations: 0, conversions: 0, aiQueries: 0 },
+            calc: { current: '0', previous: '', operation: null, expression: '', shouldReset: false },
+            savedFonts: [],
+            fontPrefs: { '--sys-font': '', '--calc-font': '', '--ai-font': '' },
+            btnRadius: '9999px'
+        };
+
+        const DOM = {
+            drawer: document.getElementById('nav-drawer'), menuBtn: document.getElementById('menu-btn'),
+            closeDrawerBtn: document.getElementById('close-drawer-btn'), appTitle: document.getElementById('app-bar-title'),
+            navItems: document.querySelectorAll('.nav-item'), views: document.querySelectorAll('.view-section'),
+            toast: document.getElementById('toast')
+        };
+
+        function showToast(msg, duration = 3000) { DOM.toast.textContent = msg; DOM.toast.classList.add('show'); setTimeout(() => DOM.toast.classList.remove('show'), duration); }
+        lucide.createIcons();
+
+        // Stats Engine
+        function updateStat(key) { state.stats[key]++; localStorage.setItem(`${APP_ID}-stats`, JSON.stringify(state.stats)); renderStats(); }
+        function renderStats() { document.getElementById('stat-calc').textContent = state.stats.calculations; document.getElementById('stat-conv').textContent = state.stats.conversions; document.getElementById('stat-ai').textContent = state.stats.aiQueries; }
+
+        // Ripple Effect
+        document.addEventListener('mousedown', function(e) {
+            const target = e.target.closest('.ripple'); if (!target) return;
+            const rect = target.getBoundingClientRect(); const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2, y = e.clientY - rect.top - size / 2;
+            const ripple = document.createElement('span'); ripple.style.width = ripple.style.height = `${size}px`; ripple.style.left = `${x}px`; ripple.style.top = `${y}px`; ripple.className = 'ripple-span';
+            target.appendChild(ripple); setTimeout(() => ripple.remove(), 600);
+        });
+
+        // View Navigation
+        function switchView(viewName) {
+            state.view = viewName; DOM.views.forEach(v => v.classList.remove('active')); document.getElementById(`view-${viewName}`).classList.add('active');
+            DOM.navItems.forEach(n => { n.classList.remove('active'); if(n.dataset.view === viewName) { n.classList.add('active'); DOM.appTitle.textContent = n.textContent.trim(); } });
+            if(window.innerWidth < 768) DOM.drawer.classList.add('-translate-x-full');
+            const histBtn = document.getElementById('history-btn');
+            if(['standard', 'scientific', 'programmer'].includes(viewName)) { histBtn.style.display = 'block'; } else { histBtn.style.display = 'none'; document.getElementById('history-panel').classList.add('translate-x-full'); }
+        }
+        DOM.navItems.forEach(item => item.addEventListener('click', () => switchView(item.dataset.view)));
+        DOM.menuBtn.addEventListener('click', () => DOM.drawer.classList.remove('-translate-x-full'));
+        DOM.closeDrawerBtn.addEventListener('click', () => DOM.drawer.classList.add('-translate-x-full'));
+
+        /** MATERIAL 3 COLOR PALETTE ENGINE */
+        function hexToHsl(hex) {
+            let r=0, g=0, b=0; if (hex.length===4) { r="0x"+hex[1]+hex[1]; g="0x"+hex[2]+hex[2]; b="0x"+hex[3]+hex[3]; } else if (hex.length===7) { r="0x"+hex[1]+hex[2]; g="0x"+hex[3]+hex[4]; b="0x"+hex[5]+hex[6]; }
+            r/=255; g/=255; b/=255; let cmin=Math.min(r,g,b), cmax=Math.max(r,g,b), delta=cmax-cmin, h=0, s=0, l=0;
+            if (delta===0) h=0; else if (cmax===r) h=((g-b)/delta)%6; else if (cmax===g) h=(b-r)/delta+2; else h=(r-g)/delta+4;
+            h=Math.round(h*60); if (h<0) h+=360; l=(cmax+cmin)/2; s=delta===0?0:delta/(1-Math.abs(2*l-1)); return [h, s, l];
+        }
+        function hslToHex(h, s, l) {
+            let c=(1-Math.abs(2*l-1))*s, x=c*(1-Math.abs((h/60)%2-1)), m=l-c/2, r=0, g=0, b=0;
+            if (0<=h && h<60){r=c;g=x;b=0;} else if (60<=h && h<120){r=x;g=c;b=0;} else if (120<=h && h<180){r=0;g=c;b=x;} else if (180<=h && h<240){r=0;g=x;b=c;} else if (240<=h && h<300){r=x;g=0;b=c;} else if (300<=h && h<360){r=c;g=0;b=x;}
+            r=Math.round((r+m)*255).toString(16).padStart(2,'0'); g=Math.round((g+m)*255).toString(16).padStart(2,'0'); b=Math.round((b+m)*255).toString(16).padStart(2,'0'); return `#${r}${g}${b}`;
+        }
+        function generateTones(h, s) { const tones={}; [0,10,20,30,40,50,60,70,80,90,95,99,100].forEach(l => tones[l]=hslToHex(h,s,l/100)); return tones; }
+        function applyMd3Palette(hexColor) {
+            const [h, s] = hexToHsl(hexColor); const primary = generateTones(h, s); const secondary = generateTones(h, s * 0.3); const tertiary = generateTones((h + 60) % 360, s * 0.5); const neutral = generateTones(h, Math.min(s, 0.1)); const neutralVariant = generateTones(h, Math.min(s, 0.15));
+            const root = document.documentElement;
+            if(state.theme === 'dark') {
+                root.style.setProperty('--md-primary', primary[80]); root.style.setProperty('--md-on-primary', primary[20]); root.style.setProperty('--md-primary-container', primary[30]); root.style.setProperty('--md-on-primary-container', primary[90]);
+                root.style.setProperty('--md-secondary', secondary[80]); root.style.setProperty('--md-on-secondary', secondary[20]); root.style.setProperty('--md-secondary-container', secondary[30]); root.style.setProperty('--md-on-secondary-container', secondary[90]);
+                root.style.setProperty('--md-tertiary', tertiary[80]); root.style.setProperty('--md-on-tertiary', tertiary[20]); root.style.setProperty('--md-tertiary-container', tertiary[30]); root.style.setProperty('--md-on-tertiary-container', tertiary[90]);
+                root.style.setProperty('--md-surface', neutral[10]); root.style.setProperty('--md-on-surface', neutral[90]); root.style.setProperty('--md-surface-variant', neutralVariant[30]); root.style.setProperty('--md-on-surface-variant', neutralVariant[80]);
+                root.style.setProperty('--md-background', neutral[10]); root.style.setProperty('--md-on-background', neutral[90]); root.style.setProperty('--md-outline', neutralVariant[60]); root.style.setProperty('--md-outline-variant', neutralVariant[30]);
+            } else {
+                root.style.setProperty('--md-primary', primary[40]); root.style.setProperty('--md-on-primary', primary[100]); root.style.setProperty('--md-primary-container', primary[90]); root.style.setProperty('--md-on-primary-container', primary[10]);
+                root.style.setProperty('--md-secondary', secondary[40]); root.style.setProperty('--md-on-secondary', secondary[100]); root.style.setProperty('--md-secondary-container', secondary[90]); root.style.setProperty('--md-on-secondary-container', secondary[10]);
+                root.style.setProperty('--md-tertiary', tertiary[40]); root.style.setProperty('--md-on-tertiary', tertiary[100]); root.style.setProperty('--md-tertiary-container', tertiary[90]); root.style.setProperty('--md-on-tertiary-container', tertiary[10]);
+                root.style.setProperty('--md-surface', neutral[99]); root.style.setProperty('--md-on-surface', neutral[10]); root.style.setProperty('--md-surface-variant', neutralVariant[90]); root.style.setProperty('--md-on-surface-variant', neutralVariant[30]);
+                root.style.setProperty('--md-background', neutral[99]); root.style.setProperty('--md-on-background', neutral[10]); root.style.setProperty('--md-outline', neutralVariant[50]); root.style.setProperty('--md-outline-variant', neutralVariant[80]);
+            }
+            localStorage.setItem(`${APP_ID}-color`, hexColor);
+        }
+
+        // Theme Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        function setTheme(theme) {
+            state.theme = theme;
+            if(theme === 'dark') { document.documentElement.classList.add('dark'); themeToggle.checked = true; } 
+            else { document.documentElement.classList.remove('dark'); themeToggle.checked = false; }
+            localStorage.setItem(`${APP_ID}-theme`, theme);
+            const savedColor = localStorage.getItem(`${APP_ID}-color`); if(savedColor) applyMd3Palette(savedColor);
+        }
+        themeToggle.addEventListener('change', (e) => setTheme(e.target.checked ? 'dark' : 'light'));
+
+        // Button Shape Settings
+        const shapeSel = document.getElementById('btn-shape-sel');
+        shapeSel.addEventListener('change', (e) => {
+            state.btnRadius = e.target.value;
+            document.documentElement.style.setProperty('--calc-btn-radius', state.btnRadius);
+            localStorage.setItem(`${APP_ID}-btn-radius`, state.btnRadius);
+            showToast('Button shape updated');
+        });
+
+        // Font Engine
+        function renderFontPills() {
+            const container = document.getElementById('saved-fonts-pills'); container.innerHTML = '';
+            if(state.savedFonts.length === 0) { container.innerHTML = '<p class="text-sm text-onSurfaceVariant italic">No fonts saved yet.</p>'; return; }
+            state.savedFonts.forEach((f, idx) => {
+                const pill = document.createElement('div');
+                pill.className = "flex items-center gap-2 px-4 py-1.5 bg-secondaryContainer text-onSecondaryContainer rounded-full text-sm font-medium border border-outlineVariant cursor-pointer hover:opacity-80 transition-opacity shadow-sm";
+                pill.innerHTML = `<span>${f.family.replace(/['"]/g, '')}</span><i data-lucide="x" class="w-3.5 h-3.5 hover:text-error transition-colors ml-1 z-10" id="del-font-${idx}"></i>`;
+                pill.onclick = (e) => { if(e.target.id !== `del-font-${idx}` && e.target.tagName !== 'line') applyFontTarget(f); };
+                container.appendChild(pill);
+                document.getElementById(`del-font-${idx}`).onclick = (e) => { e.stopPropagation(); state.savedFonts.splice(idx, 1); saveFontState(); renderFontPills(); };
+            });
+            lucide.createIcons();
+        }
+        function saveFontState() { localStorage.setItem(`${APP_ID}-fonts`, JSON.stringify(state.savedFonts)); localStorage.setItem(`${APP_ID}-font-prefs`, JSON.stringify(state.fontPrefs)); }
+        function loadFonts() {
+            state.savedFonts = JSON.parse(localStorage.getItem(`${APP_ID}-fonts`) || '[]');
+            state.fontPrefs = JSON.parse(localStorage.getItem(`${APP_ID}-font-prefs`) || '{"--sys-font":"","--calc-font":"","--ai-font":""}');
+            state.savedFonts.forEach(f => { if(!document.getElementById(`font-${btoa(f.link)}`)) { let l = document.createElement('link'); l.id = `font-${btoa(f.link)}`; l.rel = 'stylesheet'; l.href = f.link; document.head.appendChild(l); } });
+            Object.keys(state.fontPrefs).forEach(k => { if(state.fontPrefs[k]) document.documentElement.style.setProperty(k, state.fontPrefs[k]); });
+            renderFontPills();
+        }
+        function applyFontTarget(fontObj) {
+            const target = document.getElementById('font-target').value;
+            document.documentElement.style.setProperty(target, fontObj.family);
+            state.fontPrefs[target] = fontObj.family; saveFontState();
+            showToast(`Applied to ${target.replace('--', '').replace('-font', '')}`);
+        }
+        document.getElementById('save-font-btn').addEventListener('click', () => {
+            const link = document.getElementById('font-link').value.trim(), family = document.getElementById('font-family').value.trim();
+            if(!link || !family) return showToast('Please provide both link and family');
+            if(!state.savedFonts.find(f => f.family === family)) {
+                state.savedFonts.push({ link, family });
+                let l = document.createElement('link'); l.id = `font-${btoa(link)}`; l.rel = 'stylesheet'; l.href = link; document.head.appendChild(l);
+                saveFontState(); renderFontPills();
+                document.getElementById('font-link').value = ''; document.getElementById('font-family').value = ''; showToast('Font saved to pills!');
+            }
+        });
+        document.getElementById('reset-font-btn').addEventListener('click', () => {
+            state.fontPrefs = { '--sys-font': '', '--calc-font': '', '--ai-font': '' };
+            ['--sys-font', '--calc-font', '--ai-font'].forEach(k => document.documentElement.style.removeProperty(k));
+            saveFontState(); showToast('Fonts reset to default');
+        });
+
+        // Settings Buttons
+        document.getElementById('apply-color-btn').addEventListener('click', () => { applyMd3Palette(document.getElementById('base-color-picker').value); showToast('Palette generated'); });
+        document.getElementById('reset-color-btn').addEventListener('click', () => { document.documentElement.style = ''; localStorage.removeItem(`${APP_ID}-color`); setTheme(state.theme); loadFonts(); document.documentElement.style.setProperty('--calc-btn-radius', state.btnRadius); showToast('Colors reset'); });
+        document.getElementById('reset-stats-btn').addEventListener('click', () => { state.stats = { calculations: 0, conversions: 0, aiQueries: 0 }; localStorage.removeItem(`${APP_ID}-stats`); renderStats(); showToast('Stats reset'); });
+
+        function initSettings() {
+            setTheme(localStorage.getItem(`${APP_ID}-theme`) || 'light');
+            const savedColor = localStorage.getItem(`${APP_ID}-color`); if(savedColor) { document.getElementById('base-color-picker').value = savedColor; applyMd3Palette(savedColor); }
+            const savedRadius = localStorage.getItem(`${APP_ID}-btn-radius`);
+            if(savedRadius) { state.btnRadius = savedRadius; shapeSel.value = savedRadius; document.documentElement.style.setProperty('--calc-btn-radius', savedRadius); }
+            const st = localStorage.getItem(`${APP_ID}-stats`); if(st) state.stats = JSON.parse(st);
+            loadFonts(); renderStats(); loadHistory();
+        }
+
+        /** CALCULATOR ENGINE */
+        const mathEngine = {
+            format(numStr) { if(!numStr || numStr === 'Error') return numStr; const parts = numStr.toString().split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ","); return parts.join('.'); },
+            evaluate(expr) {
+                try {
+                    let parsed = expr.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-').replace(/π/g, 'Math.PI').replace(/e/g, 'Math.E');
+                    ['sin','cos','tan','asin','acos','atan','log','ln','sqrt'].forEach(f => {
+                        parsed = parsed.replace(new RegExp(`${f}\\(([^)]+)\\)`, 'g'), (m, val) => {
+                            if(f === 'ln') return `Math.log(${val})`; if(f === 'log') return `Math.log10(${val})`; if(f === 'sqrt') return `Math.sqrt(${val})`;
+                            if(['sin','cos','tan'].includes(f)) return `Math.${f}(${state.angleMode==='deg'?val*(Math.PI/180):val})`;
+                            if(['asin','acos','atan'].includes(f)) return `(Math.${f}(${val})${state.angleMode==='deg'?'*180/Math.PI':''})`;
+                        });
+                    });
+                    if(parsed.includes('^')) parsed = `Math.pow(${parsed.split('^')[0]}, ${parsed.split('^')[1]})`;
+                    const result = new Function(`return ${parsed}`)(); if(!isFinite(result) || isNaN(result)) throw new Error();
+                    updateStat('calculations'); return parseFloat(result.toPrecision(12)).toString();
+                } catch(e) { return 'Error'; }
+            }
+        };
+
+        function updateCalcDisplay() {
+            document.getElementById('std-main-disp').textContent = mathEngine.format(state.calc.current); document.getElementById('std-history-disp').textContent = state.calc.expression;
+            document.getElementById('sci-main-disp').textContent = mathEngine.format(state.calc.current); document.getElementById('sci-history-disp').textContent = state.calc.expression;
+            if(state.view === 'programmer') updateProgrammerDisplay();
+        }
+
+        function handleCalcInput(val) {
+            if(state.calc.current === 'Error') { state.calc.current = '0'; state.calc.expression = ''; }
+            if(/[0-9]/.test(val) || /[A-F]/.test(val)) {
+                if(state.calc.shouldReset) { state.calc.current = val; state.calc.shouldReset = false; } else { state.calc.current = state.calc.current === '0' ? val : state.calc.current + val; }
+            } else if(val === '.') {
+                if(state.calc.shouldReset) { state.calc.current = '0.'; state.calc.shouldReset = false; } else if(!state.calc.current.includes('.')) state.calc.current += '.';
+            } else if(val === 'clear') { state.calc.current = '0'; state.calc.expression = ''; state.calc.operation = null; state.calc.previous = ''; } 
+            else if(val === 'clear-entry') state.calc.current = '0';
+            else if(val === 'backspace') state.calc.current = state.calc.current.length > 1 ? state.calc.current.slice(0, -1) : '0';
+            else if(val === 'negate') state.calc.current = (parseFloat(state.calc.current) * -1).toString();
+            else if(['+', '-', '*', '/', '^', 'mod', 'and', 'or', 'xor', 'lsh', 'rsh'].includes(val)) {
+                let opMap = {'+':'+', '-': '−', '*': '×', '/': '÷', '^':'^', 'mod':'MOD', 'and':'AND', 'or':'OR', 'xor':'XOR', 'lsh':'<<', 'rsh':'>>'};
+                if(state.calc.operation && !state.calc.shouldReset) handleCalcInput('=');
+                state.calc.previous = state.calc.current; state.calc.operation = val; state.calc.expression = `${mathEngine.format(state.calc.previous)} ${opMap[val]}`; state.calc.shouldReset = true;
+            } else if(['sin','cos','tan','asin','acos','atan','log','ln','sqrt'].includes(val)) {
+                state.calc.expression = `${val}(${state.calc.current})`; state.calc.current = mathEngine.evaluate(state.calc.expression);
+                state.calc.shouldReset = true; saveHistory(state.calc.expression, state.calc.current);
+            } else if(val === 'pi') { state.calc.current = Math.PI.toString(); state.calc.shouldReset = true; } 
+            else if(val === 'e') { state.calc.current = Math.E.toString(); state.calc.shouldReset = true; } 
+            else if(val === '=') {
+                if(state.calc.operation) {
+                    let opMap = {'+':'+', '-': '−', '*': '×', '/': '÷', '^':'^'}; let expr = '';
+                    if(['mod','and','or','xor','lsh','rsh'].includes(state.calc.operation)) {
+                        expr = doBitwise(state.calc.previous, state.calc.current, state.calc.operation);
+                        state.calc.expression = `${state.calc.previous} ${state.calc.operation.toUpperCase()} ${state.calc.current} =`;
+                        state.calc.current = expr; updateStat('calculations');
+                    } else {
+                        expr = `${state.calc.previous} ${opMap[state.calc.operation]} ${state.calc.current}`;
+                        state.calc.expression = expr + ' ='; state.calc.current = mathEngine.evaluate(expr);
+                    }
+                    saveHistory(state.calc.expression, state.calc.current); state.calc.operation = null; state.calc.shouldReset = true;
+                }
+            } else if(val === 'not') {
+                let v = parseInt(state.calc.current, state.progBase); state.calc.current = (~v >>> 0).toString(state.progBase).toUpperCase();
+                state.calc.shouldReset = true; updateStat('calculations');
+            }
+            updateCalcDisplay();
+        }
+
+        document.querySelectorAll('.calc-btn').forEach(btn => btn.addEventListener('click', (e) => { if(e.currentTarget.dataset.val) handleCalcInput(e.currentTarget.dataset.val); }));
+        document.getElementById('deg-btn').addEventListener('click', function() { state.angleMode = 'deg'; this.className = 'px-4 py-1 bg-primary text-onPrimary font-medium transition-colors'; document.getElementById('rad-btn').className = 'px-4 py-1 text-onSurfaceVariant font-medium transition-colors hover:bg-outlineVariant'; });
+        document.getElementById('rad-btn').addEventListener('click', function() { state.angleMode = 'rad'; this.className = 'px-4 py-1 bg-primary text-onPrimary font-medium transition-colors'; document.getElementById('deg-btn').className = 'px-4 py-1 text-onSurfaceVariant font-medium transition-colors hover:bg-outlineVariant'; });
+        document.querySelectorAll('.mem-btn').forEach(btn => btn.addEventListener('click', (e) => {
+            const action = e.currentTarget.dataset.action; const curr = parseFloat(state.calc.current) || 0;
+            if(action === 'mc') state.memory = 0; if(action === 'mr') { state.calc.current = state.memory.toString(); state.calc.shouldReset = true; }
+            if(action === 'm+') state.memory += curr; if(action === 'm-') state.memory -= curr; if(action === 'ms') state.memory = curr;
+            updateCalcDisplay(); showToast(`Memory: ${state.memory}`);
+        }));
+
+        /** PROGRAMMER LOGIC */
+        function updateProgrammerDisplay() {
+            let decVal = parseInt(state.calc.current, state.progBase); if(isNaN(decVal)) decVal = 0;
+            document.getElementById('prog-main-disp').textContent = state.calc.current;
+            document.getElementById('prog-hex').textContent = (decVal >>> 0).toString(16).toUpperCase();
+            document.getElementById('prog-dec').textContent = decVal.toString(10);
+            document.getElementById('prog-oct').textContent = (decVal >>> 0).toString(8);
+            document.getElementById('prog-bin').textContent = (decVal >>> 0).toString(2).match(/.{1,4}/g)?.join(' ') || '0';
+        }
+        function doBitwise(aStr, bStr, op) {
+            let a = parseInt(aStr, state.progBase), b = parseInt(bStr, state.progBase), res = 0;
+            switch(op) { case 'and': res=a&b; break; case 'or': res=a|b; break; case 'xor': res=a^b; break; case 'lsh': res=a<<b; break; case 'rsh': res=a>>b; break; case 'mod': res=a%b; break; }
+            return (res >>> 0).toString(state.progBase).toUpperCase();
+        }
+        document.querySelectorAll('.prog-base-sel').forEach(el => el.addEventListener('click', (e) => {
+            const newBase = parseInt(e.currentTarget.dataset.base);
+            document.querySelectorAll('.prog-base-sel').forEach(b => { b.classList.remove('bg-surfaceVariant', 'text-onSurface'); b.classList.add('text-onSurfaceVariant'); });
+            e.currentTarget.classList.add('bg-surfaceVariant', 'text-onSurface'); e.currentTarget.classList.remove('text-onSurfaceVariant');
+            let decVal = parseInt(state.calc.current, state.progBase); if(isNaN(decVal)) decVal = 0;
+            state.calc.current = (decVal >>> 0).toString(newBase).toUpperCase(); state.progBase = newBase;
+            const hexBtns = document.querySelectorAll('.prog-hex-btn');
+            if(newBase === 16) hexBtns.forEach(b => { b.removeAttribute('disabled'); b.classList.remove('opacity-30'); });
+            else hexBtns.forEach(b => { b.setAttribute('disabled', 'true'); b.classList.add('opacity-30'); });
+            updateProgrammerDisplay();
+        }));
+
+        /** HISTORY */
+        const historyPanel = document.getElementById('history-panel');
+        document.getElementById('history-btn').addEventListener('click', () => { historyPanel.classList.remove('translate-x-full'); renderHistory(); });
+        document.getElementById('close-history-btn').addEventListener('click', () => historyPanel.classList.add('translate-x-full'));
+        function saveHistory(expr, result) {
+            if(!expr || !result || result === 'Error') return;
+            state.history.unshift({ expr, result, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+            if(state.history.length > 50) state.history.pop();
+            localStorage.setItem(`${APP_ID}-history`, JSON.stringify(state.history));
+        }
+        function loadHistory() { const h = localStorage.getItem(`${APP_ID}-history`); if(h) state.history = JSON.parse(h); }
+        function renderHistory() {
+            const list = document.getElementById('history-list'); list.innerHTML = '';
+            if(state.history.length === 0) return list.innerHTML = '<div class="text-center text-onSurfaceVariant p-4 text-sm mt-4">No history yet</div>';
+            state.history.forEach(item => {
+                const el = document.createElement('div'); el.className = 'p-3 rounded-xl hover:bg-surfaceVariant cursor-pointer transition-colors text-right ripple';
+                el.innerHTML = `<div class="text-xs text-onSurfaceVariant mb-1 flex justify-between"><span>${item.time}</span><span>${item.expr}</span></div><div class="text-lg text-onSurface font-medium">${item.result}</div>`;
+                el.addEventListener('click', () => { state.calc.current = item.result; state.calc.shouldReset = true; updateCalcDisplay(); historyPanel.classList.add('translate-x-full'); });
+                list.appendChild(el);
+            });
+        }
+        document.getElementById('trash-history-btn').addEventListener('click', () => { state.history = []; localStorage.removeItem(`${APP_ID}-history`); renderHistory(); showToast('History cleared'); });
+        document.getElementById('clear-history-btn').addEventListener('click', () => document.getElementById('trash-history-btn').click());
+
+        /** EXTENDED CONVERTER & NEW APIs */
+        let currencyDataLoaded = false;
+        const convData = {
+            length: { m: 1, km: 0.001, cm: 100, mm: 1000, mi: 0.000621371, yd: 1.09361, ft: 3.28084, in: 39.3701 },
+            weight: { kg: 1, g: 1000, mg: 1e6, lb: 2.20462, oz: 35.274 },
+            volume: { l: 1, ml: 1000, gal: 0.264172, qt: 1.05669, pt: 2.11338, cup: 4.22675 },
+            area: { sq_m: 1, sq_km: 1e-6, sq_mi: 3.861e-7, acre: 0.000247105, hectare: 0.0001 },
+            data: { B: 1, KB: 1e-3, MB: 1e-6, GB: 1e-9, TB: 1e-12 },
+            speed: { ms: 1, kmh: 3.6, mph: 2.23694, knot: 1.94384 },
+            time: { s: 1, min: 1/60, h: 1/3600, d: 1/86400 },
+            angle: { deg: 1, rad: Math.PI/180, grad: 1.111111 },
+            pressure: { pa: 1, bar: 1e-5, psi: 0.000145038, atm: 9.8692e-6 },
+            energy: { j: 1, cal: 0.239006, kwh: 2.7778e-7, ev: 6.242e18 },
+            power: { w: 1, kw: 0.001, hp: 0.00134102 },
+            data_rate: { bps: 1, kbps: 0.001, mbps: 1e-6, gbps: 1e-9 },
+            force: { n: 1, lbf: 0.224809, dyn: 100000 },
+            currency: { usd: 1, eur: 0.92, gbp: 0.79, inr: 83.1, jpy: 150.0, aud: 1.52, cad: 1.35, cny: 7.19, btc: 0.000015, eth: 0.0003, sol: 0.007 } // Fallback
+        };
+        const convCat = document.getElementById('conv-category'), convFromU = document.getElementById('conv-from-unit'), convToU = document.getElementById('conv-to-unit'), convFromV = document.getElementById('conv-from-val'), convToV = document.getElementById('conv-to-val');
+        
+        async function fetchCurrency() {
+            if(currencyDataLoaded) return;
+            try {
+                // Using Coingecko API for Crypto & Currency proxy if available or fawazahmed0 API
+                const res = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json');
+                const data = await res.json();
+                convData.currency = { 
+                    usd: 1, eur: data.usd.eur, gbp: data.usd.gbp, inr: data.usd.inr, jpy: data.usd.jpy, aud: data.usd.aud, cad: data.usd.cad, cny: data.usd.cny,
+                    btc: data.usd.btc || 0.000015, eth: data.usd.eth || 0.0003, sol: data.usd.sol || 0.007, doge: data.usd.doge || 7.5
+                };
+                currencyDataLoaded = true; showToast('Live currency & crypto rates loaded');
+            } catch(e) { console.warn("Live currency failed. Using fallback rates."); }
+        }
+
+        async function populateConvUnits() {
+            const cat = convCat.value; 
+            if(cat === 'currency' && !currencyDataLoaded) await fetchCurrency();
+            convFromU.innerHTML = ''; convToU.innerHTML = '';
+            if(cat === 'temperature') { ['C', 'F', 'K'].forEach(u => { convFromU.add(new Option(u, u)); convToU.add(new Option(u, u)); }); } 
+            else { Object.keys(convData[cat]).forEach(u => { convFromU.add(new Option(u.toUpperCase(), u)); convToU.add(new Option(u.toUpperCase(), u)); }); }
+            convToU.selectedIndex = 1 < convToU.options.length ? 1 : 0; doConvert();
+        }
+        function doConvert() {
+            if(!convFromV.value) return;
+            const cat = convCat.value, val = parseFloat(convFromV.value) || 0, from = convFromU.value, to = convToU.value; let result = 0;
+            if(cat === 'temperature') { let tempC = from === 'C' ? val : (from === 'F' ? (val - 32) * 5/9 : val - 273.15); result = to === 'C' ? tempC : (to === 'F' ? (tempC * 9/5) + 32 : tempC + 273.15); } 
+            else { result = (val / convData[cat][from]) * convData[cat][to]; }
+            convToV.value = parseFloat(result.toPrecision(10)); updateStat('conversions');
+        }
+        convCat.addEventListener('change', populateConvUnits); [convFromU, convToU, convFromV].forEach(el => el.addEventListener('input', doConvert));
+
+        /** DICTIONARY API */
+        document.getElementById('dict-search-btn').addEventListener('click', async () => {
+            const word = document.getElementById('dict-input').value.trim();
+            if(!word) return;
+            const resDiv = document.getElementById('dict-result');
+            resDiv.innerHTML = '<div class="spinner mx-auto"></div>'; resDiv.classList.remove('hidden'); resDiv.classList.add('flex');
+            try {
+                const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+                if(!response.ok) throw new Error();
+                const data = await response.json();
+                const entry = data[0];
+                let html = `<div><h3 class="text-3xl font-light text-primary capitalize">${entry.word}</h3><p class="text-onSurfaceVariant">${entry.phonetics[0]?.text || ''}</p></div>`;
+                entry.meanings.forEach(m => {
+                    html += `<div class="dict-meaning"><p class="font-medium text-sm text-onSurfaceVariant uppercase tracking-wider mb-2">${m.partOfSpeech}</p><ul class="list-disc ml-4 space-y-1">`;
+                    m.definitions.slice(0, 3).forEach(d => html += `<li class="text-onSurface">${d.definition}</li>`);
+                    html += `</ul></div>`;
+                });
+                resDiv.innerHTML = html;
+            } catch(e) { resDiv.innerHTML = `<p class="text-error">Word not found. Try another word.</p>`; }
+        });
+
+        /** WORLD TIME API */
+        let timezonesLoaded = false;
+        let wtInterval = null;
+        document.querySelector('[data-view="worldtime"]').addEventListener('click', async () => {
+            if(timezonesLoaded) return;
+            try {
+                const res = await fetch('https://worldtimeapi.org/api/timezone');
+                const tzs = await res.json();
+                const sel = document.getElementById('wt-timezone'); sel.innerHTML = '<option value="">Select a Timezone</option>';
+                tzs.forEach(tz => sel.add(new Option(tz, tz)));
+                timezonesLoaded = true;
+            } catch(e) { showToast('Failed to load timezones'); }
+        });
+        document.getElementById('wt-timezone').addEventListener('change', async (e) => {
+            if(wtInterval) clearInterval(wtInterval);
+            const tz = e.target.value; if(!tz) { document.getElementById('wt-result').classList.replace('flex', 'hidden'); return; }
+            try {
+                const fetchTime = async () => {
+                    const res = await fetch(`https://worldtimeapi.org/api/timezone/${tz}`);
+                    const data = await res.json();
+                    const d = new Date(data.datetime);
+                    document.getElementById('wt-date').textContent = d.toDateString();
+                    document.getElementById('wt-time').textContent = d.toLocaleTimeString([], {hour12: false});
+                    document.getElementById('wt-abbr').textContent = `${data.abbreviation} (${data.utc_offset})`;
+                    document.getElementById('wt-result').classList.remove('hidden'); document.getElementById('wt-result').classList.add('flex');
+                };
+                await fetchTime();
+                wtInterval = setInterval(fetchTime, 1000); // Live update
+            } catch(err) { showToast('Failed to load time'); }
+        });
+
+        /** MINOR TOOLS: Financial, Date, Health */
+        document.getElementById('fin-calc-btn').addEventListener('click', () => {
+            const p = parseFloat(document.getElementById('fin-principal').value), r = parseFloat(document.getElementById('fin-rate').value) / 100 / 12, n = parseFloat(document.getElementById('fin-years').value) * 12;
+            if(!p || !r || !n) return showToast('Please enter valid numbers');
+            const monthly = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1), total = monthly * n, interest = total - p;
+            document.getElementById('fin-monthly').textContent = '$' + mathEngine.format(monthly.toFixed(2)); document.getElementById('fin-total-int').textContent = '$' + mathEngine.format(interest.toFixed(2)); document.getElementById('fin-total-pay').textContent = '$' + mathEngine.format(total.toFixed(2));
+            document.getElementById('fin-result').classList.remove('hidden'); document.getElementById('fin-result').classList.add('flex'); updateStat('calculations');
+        });
+        const dateFrom = document.getElementById('date-from'), dateTo = document.getElementById('date-to'), dateRes = document.getElementById('date-diff-result');
+        function calcDateDiff() {
+            if(dateFrom.value && dateTo.value) {
+                const d1 = new Date(dateFrom.value), d2 = new Date(dateTo.value), diffTime = Math.abs(d2 - d1), diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                dateRes.innerHTML = `${diffDays} Days<br><span class="text-sm opacity-80">(${Math.floor(diffDays/365)} y, ${Math.floor((diffDays%365)/30)} m, ${diffDays%30} d approx)</span>`; updateStat('calculations');
+            }
+        }
+        dateFrom.addEventListener('change', calcDateDiff); dateTo.addEventListener('change', calcDateDiff);
+
+        let isMetric = true;
+        document.getElementById('bmi-metric').addEventListener('click', (e) => { isMetric = true; e.currentTarget.classList.add('bg-surface', 'shadow', 'text-onSurface'); e.currentTarget.classList.remove('text-onSurfaceVariant'); document.getElementById('bmi-imperial').classList.remove('bg-surface', 'shadow', 'text-onSurface'); document.getElementById('bmi-imperial').classList.add('text-onSurfaceVariant'); document.getElementById('bmi-h-unit').textContent = 'cm'; document.getElementById('bmi-w-unit').textContent = 'kg'; });
+        document.getElementById('bmi-imperial').addEventListener('click', (e) => { isMetric = false; e.currentTarget.classList.add('bg-surface', 'shadow', 'text-onSurface'); e.currentTarget.classList.remove('text-onSurfaceVariant'); document.getElementById('bmi-metric').classList.remove('bg-surface', 'shadow', 'text-onSurface'); document.getElementById('bmi-metric').classList.add('text-onSurfaceVariant'); document.getElementById('bmi-h-unit').textContent = 'inches'; document.getElementById('bmi-w-unit').textContent = 'lbs'; });
+        document.getElementById('bmi-calc-btn').addEventListener('click', () => {
+            let h = parseFloat(document.getElementById('bmi-height').value), w = parseFloat(document.getElementById('bmi-weight').value);
+            if(!h || !w) return showToast('Please enter valid inputs');
+            let bmi = isMetric ? w / ((h/100) * (h/100)) : (w / (h * h)) * 703, cat = 'Normal', color = 'var(--md-primary)';
+            if(bmi < 18.5) { cat = 'Underweight'; color = '#0284c7'; } else if(bmi > 25 && bmi < 30) { cat = 'Overweight'; color = '#ca8a04'; } else if(bmi >= 30) { cat = 'Obese'; color = 'var(--md-error)'; }
+            document.getElementById('bmi-score').textContent = bmi.toFixed(1); document.getElementById('bmi-score').style.color = color; document.getElementById('bmi-category').textContent = cat;
+            document.getElementById('bmi-result-card').classList.remove('hidden'); document.getElementById('bmi-result-card').classList.add('flex'); updateStat('calculations');
+        });
+
+        /** AI MATH ASSISTANT LOGIC (Flawless KaTeX Pipeline) */
+        const aiForm = document.getElementById('ai-chat-form'), aiInput = document.getElementById('ai-chat-input'), aiBox = document.getElementById('ai-chat-box');
+        
+        function parseMarkdownAndMathSafe(text) {
+            let mathBlocks = [];
+            let processedText = text || '';
+            
+            // Extract Block Math $$...$$ or \[...\] into a safe markdown-proof string
+            processedText = processedText.replace(/(\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\])/g, (match) => {
+                mathBlocks.push(match);
+                return `KtxMathBlock${mathBlocks.length - 1}Ktx`;
+            });
+            
+            // Extract Inline Math $...$ or \(...\) into a safe markdown-proof string
+            processedText = processedText.replace(/(\$(?!\s)[^\$\n]+?(?<!\s)\$|\\\([\s\S]*?\\\))/g, (match) => {
+                mathBlocks.push(match);
+                return `KtxMathBlock${mathBlocks.length - 1}Ktx`;
+            });
+
+            // Parse Markdown safely (Markdown will ignore KtxMathBlockXKtx)
+            let html = marked.parse(processedText);
+
+            // Restore Math precisely. Using an arrow function prevents JS from eating $$ inside the replace command!
+            mathBlocks.forEach((block, i) => {
+                html = html.replace(new RegExp(`KtxMathBlock${i}Ktx`, 'g'), () => block);
+            });
+
+            return html;
+        }
+
+        function addToAIChatBox(content, isUser = false) {
+            const wrapper = document.createElement('div');
+            
+            if(isUser) {
+                wrapper.className = 'self-end flex max-w-[85%] mb-2';
+                const msg = document.createElement('div');
+                msg.className = 'bg-primary text-onPrimary px-4 py-3 rounded-2xl rounded-tr-sm shadow-sm font-medium';
+                msg.textContent = content; 
+                wrapper.appendChild(msg);
+            } else {
+                wrapper.className = 'self-start flex w-full gap-3 mb-2';
+                
+                // New specialized Avatar URL
+                const avatar = document.createElement('img');
+                avatar.src = "https://api.dicebear.com/7.x/avataaars/svg?seed=Aiden274&backgroundColor=transparent";
+                avatar.className = "w-8 h-8 rounded-full flex-shrink-0 mt-1 bg-surfaceVariant border border-outlineVariant p-0.5";
+                wrapper.appendChild(avatar);
+
+                const msg = document.createElement('div');
+                // Bubble-free styling
+                msg.className = 'text-onSurface w-[calc(100%-3rem)] overflow-hidden ai-message leading-relaxed pt-1';
+                msg.innerHTML = parseMarkdownAndMathSafe(content);
+                
+                // KaTeX Auto-Render for AI text
+                renderMathInElement(msg, { 
+                    delimiters: [ 
+                        {left: '$$', right: '$$', display: true}, 
+                        {left: '\\[', right: '\\]', display: true}, 
+                        {left: '$', right: '$', display: false}, 
+                        {left: '\\(', right: '\\)', display: false} 
+                    ], 
+                    throwOnError: false 
+                });
+                wrapper.appendChild(msg);
+            }
+            
+            aiBox.appendChild(wrapper);
+            setTimeout(() => aiBox.scrollTo({top: aiBox.scrollHeight, behavior: 'smooth'}), 100);
+        }
+
+        function getAIChatHistory() { return JSON.parse(localStorage.getItem(AI_APP_ID) || '[]'); }
+        function saveAIChatHistory(content, isUser) {
+            const chats = getAIChatHistory(); chats.push({ content, isUser });
+            if(chats.length > 40) chats.splice(0, chats.length - 40); // Memory: strictly last 40 (~20 queries)
+            localStorage.setItem(AI_APP_ID, JSON.stringify(chats));
+        }
+
+        document.getElementById('ai-clear-btn').addEventListener('click', () => {
+            localStorage.removeItem(AI_APP_ID);
+            aiBox.innerHTML = `
+                <div class="self-start flex w-full gap-3 default-ai-msg">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Aiden274&backgroundColor=transparent" class="w-8 h-8 rounded-full flex-shrink-0 mt-1 bg-surfaceVariant border border-outlineVariant p-0.5" alt="AI">
+                    <div class="text-onSurface w-full overflow-hidden ai-message leading-relaxed pt-1">
+                        <p>Chat cleared. How can I assist you with math today?</p>
+                    </div>
+                </div>`;
+            showToast('AI Chat Memory Reset');
+        });
+
+        aiForm.addEventListener('submit', async function (e) {
+            e.preventDefault(); const userInput = aiInput.value.trim(); if (!userInput) return;
+            addToAIChatBox(userInput, true); saveAIChatHistory(userInput, true); aiInput.value = ''; updateStat('aiQueries');
+
+            const loaderWrap = document.createElement('div');
+            loaderWrap.className = 'self-start flex w-full gap-3 mb-2';
+            loaderWrap.innerHTML = `
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Aiden274&backgroundColor=transparent" class="w-8 h-8 rounded-full flex-shrink-0 mt-1 bg-surfaceVariant border border-outlineVariant p-0.5" alt="AI">
+                <div class="text-onSurfaceVariant pt-2 flex items-center gap-2 text-sm"><div class="spinner border-[2px] border-t-primary w-4 h-4"></div> Computing...</div>`;
+            aiBox.appendChild(loaderWrap); aiBox.scrollTo({top: aiBox.scrollHeight, behavior: 'smooth'});
+
+            const chats = getAIChatHistory(); const memoryContext = chats.slice(-20).map(c => `${c.isUser ? 'User' : 'Assistant'}: ${c.content}`).join('\n');
+            const fullPrompt = `You are a highly capable Math AI Assistant created by Muhammad Awais & Ehsar at HyBox Studio. Your are specially crafted to Provide accurate mathematical answers. You MUST format math correctly for KaTeX. For block equations use $$...$$ or \\[...\\] and for inline math use $...$ or \\(...\\). Do NOT escape variables inside math blocks.\n\nHistory:\n${memoryContext}\n\nExplain equations & thing to user like He is a 5yo student. Always provide accurate results & double check the answer & then lmtell the final answer to users\n\nAssistant:`;
+
+            try {
+                const response = await fetch("https://backend.buildpicoapps.com/aero/run/llm-api?pk=v1-Z0FBQUFBQm9kWGVLT0ZjcFZoaVNvOWtwbG5lVzlDQ1J5a0NGTmtaTWxDamUzZVR4d1ZyY3JVbi1ucnU2VF9kRndpWmF5Znl0VlliX0ZFNmdkWjJBMzdHTndzdnZyMnE0SGc9PQ==", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: fullPrompt }) });
+                const result = await response.json(); loaderWrap.remove();
+                if (result.status === 'success') { addToAIChatBox(result.text, false); saveAIChatHistory(result.text, false); } 
+                else { addToAIChatBox('Error: ' + result.status, false); }
+            } catch (error) { loaderWrap.remove(); addToAIChatBox('Network error. Try again.', false); }
+        });
+
+        function bootAIChat() {
+            const chats = getAIChatHistory();
+            if(chats.length > 0) {
+                const defaultMsg = aiBox.querySelector('.default-ai-msg');
+                if(defaultMsg) defaultMsg.remove();
+                chats.forEach(chat => addToAIChatBox(chat.content, chat.isUser));
+            }
+        }
+
+        /** KEYBOARD ACCESSIBILITY */
+        window.addEventListener('keydown', (e) => {
+            if(document.activeElement.tagName === 'INPUT' && document.activeElement.type !== 'button') return;
+            const keyMap = { 'Enter':'=', '=':'=', 'Escape':'clear', 'Backspace':'backspace', 'Delete':'clear-entry', '+':'+', '-':'-', '*':'*', '/':'/', '.':'.', '^':'^' };
+            if(/[0-9]/.test(e.key)) handleCalcInput(e.key); else if(keyMap[e.key]) { e.preventDefault(); handleCalcInput(keyMap[e.key]); }
+            if(state.view === 'programmer' && state.progBase === 16 && /[a-fA-F]/.test(e.key)) handleCalcInput(e.key.toUpperCase());
+        });
+
+        // Initialize App
+        window.onload = () => { initSettings(); populateConvUnits(); bootAIChat(); };
+    </script>
+</body>
+</html>
